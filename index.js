@@ -5,8 +5,9 @@ const SteamList = require('./events/SteamList')
 const EpicList = require('./events/EpicList')
 const AsciiTable = require('ascii-table')
 const scheduled = new cron.CronJob('0 14 * * *')
-const freeSteamGameChannel = '693407805494919228';
 require('dotenv').config()
+
+const freeSteamGameChannel = process.env.CHANNEL_ID;
 
 async function createTable() {
   const SteamTable = new AsciiTable();
