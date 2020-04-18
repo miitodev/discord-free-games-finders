@@ -18,7 +18,11 @@
     "url": "https://github.com/MitoKito/discord-steamdb-free-game-finder/issues"
   },
   "homepage": "https://github.com/MitoKito/discord-steamdb-free-game-finder#readme",
-  "devDependencies": {},
+  "devDependencies": {
+    "eslint": "^6.8.0",
+    "eslint-config-airbnb-base": "^14.1.0",
+    "eslint-plugin-import": "^2.20.2"
+  },
   "dependencies": {
     "ascii-table": "0.0.9",
     "cheerio": "^1.0.0-rc.3",
