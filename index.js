@@ -15,8 +15,8 @@ async function createTable() {
   const SteamTable = new AsciiTable();
   const EpicTable = new AsciiTable()
 
-  SteamTable.setHeading('Steam Games', 'Dates')
-  EpicTable.setHeading('Epic Games Store Games', 'Start', 'Ends')
+  SteamTable.setHeading('Steam Games', 'Dates');
+  EpicTable.setHeading('Epic Games Store Games', 'Dates');
 
   const Steam = await SteamList();
   const Epic = await EpicList();
@@ -25,11 +25,11 @@ async function createTable() {
     SteamTable.addRow(`${el.APP_TYPE}: ${el.TITLE}`, `${format(el.START_DATE, 'MMM dd')} - ${format(el.END_DATE, 'MMM dd')}`)
   })
 
-  Epic.forEach((e) => {
-    EpicTable.addRow(e.title, e.endin)
+  Epic.forEach((el) => {
+    EpicTable.addRow(`Game: ${el.TITLE}`, `${format(el.START_DATE, 'MMM dd')} - ${format(el.END_DATE, 'MMM dd')}`)
   })
 
-  return await `${SteamTable.toString()}\n${EpicTable.toString()}`
+  return `${SteamTable.toString()}\n${EpicTable.toString()}`
 }
 
 client.login(process.env.DISCORD_KEY)

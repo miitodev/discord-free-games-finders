@@ -1,58 +1,49 @@
-const puppeteer = require( 'puppeteer' );
-const userAgent = require( 'user-agents' );
-const { SortStable } = require( '../helper' )
-const formatDistanceToNow = require('date-fns/formatDistanceToNow')
+const got = require('got');
+const cheerio = require('cheerio');
+const parseISO = require('date-fns/parseISO')
 
-const FREE_GAMES_PAGE_URL = 'https://www.epicgames.com/store/en-US/free-games/';
+const FREE_GAMES_PAGE_URL = 'https://graphql.epicgames.com/graphql';
+
+const GRAPHQL_QUERY = {
+  query: 'query promotionsQuery($namespace: String!, $country: String!, $locale: String!) {\n  Catalog {\n    catalogOffers(namespace: $namespace, locale: $locale, params: {category: "freegames", country: $country, sortBy: "effectiveDate", sortDir: "asc"}) {\n      elements {\n        title\n        description\n        id\n        namespace\n        categories {\n          path\n        }\n        keyImages {\n          type\n          url\n        }\n        productSlug\n        promotions {\n          promotionalOffers {\n            promotionalOffers {\n              startDate\n              endDate\n              discountSetting {\n                discountType\n                discountPercentage\n              }\n            }\n          }\n          upcomingPromotionalOffers {\n            promotionalOffers {\n              startDate\n              endDate\n              discountSetting {\n                discountType\n                discountPercentage\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n}',
+  variables: {"namespace":"epic","country":"CA","locale":"en-US"}
+}
 
 async function EpicList() {
-  const browser = await puppeteer.launch();
-  const page = await browser.newPage();
-  await page.setUserAgent(userAgent.toString())
-  await page.setViewport({
-    width: 1920,
-    height: 1080
+  const response = await got({
+    method: 'POST',
+    url: FREE_GAMES_PAGE_URL,
+    headers: {
+      'Content-Type': 'application/json; charset=utf-8',
+    },
+    body: JSON.stringify(GRAPHQL_QUERY)
   })
-  await page.exposeFunction("formatDistanceToNow", formatDistanceToNow);
-  await page.goto(FREE_GAMES_PAGE_URL, { waitUntil: 'networkidle2' });
-  let data = await page.evaluate(() => {
-    function getAll(selector) {
-      return Array.prototype.slice.call(document.querySelectorAll(selector), 0);
-    }
+  const data = JSON.parse(response.body).data;
 
-    let array = []
-    let titleAll = []
-    let endinAll = []
+  const promotionRow = [...data.Catalog.catalogOffers.elements];
+  const items = Promise.all(promotionRow
+    .filter(function(element) {
+      if (element?.promotions?.promotionalOffers?.[0]?.promotionalOffers?.[0]?.discountSetting?.discountPercentage === 0) {
+        return true
+      }
 
-    getAll('[class*="FreeGamesCollection-fullbleedSection"] span[data-testid="offer-title-info-title"]').forEach((e) => {
-      titleAll.push(e.innerText)
+    return false
     })
+    .map(function(element) {
+      const TITLE = element.title;
+      const APP_ID = element.id;
+      const SUB_ID = element.productSlug;
+      const START_DATE = parseISO(element.promotions.promotionalOffers[0].promotionalOffers[0].startDate);
+      const END_DATE = parseISO(element.promotions.promotionalOffers[0].promotionalOffers[0].endDate);
 
-    getAll('[class*="FreeGamesCollection-fullbleedSection"] span[data-testid="offer-title-info-subtitle"] time:nth-child(1)').forEach((e) => {
-      endinAll.push(e.getAttribute('datetime'))
-    })
+      return {TITLE, APP_ID, SUB_ID, START_DATE, END_DATE};
+    }))
 
-    for (let i = 0; i < titleAll.length; i++) {
-      array.push({
-        title: titleAll[i],
-        endin: endinAll[i]
-      })
-    }
-
-    return array
-  })
-
-  data.forEach((el) => {
-    el.endin = formatDistanceToNow(new Date(el.endin), { addSuffix: false })
-  })
-
-  await browser.close();
-
-  return SortStable(data)
+  return items
 }
 
 if (require.main === module) {
-  EpicList().then(console.log)
+  EpicList().then(console.log);
 }
 
 module.exports = EpicList;

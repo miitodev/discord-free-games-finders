@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "build": "npm install",
-    "start": "node --optimize_for_size --max_old_space_size=460 --gc_interval=100 index.js"
+    "start": "node --harmony --optimize_for_size --max_old_space_size=460 --gc_interval=100 index.js"
   },
   "repository": {
     "type": "git",
@@ -27,6 +27,7 @@
     "date-fns": "^2.11.1",
     "discord.js": "^12.0.2",
     "dotenv": "^8.2.0",
+    "got": "^10.7.0",
     "puppeteer": "^2.1.1",
     "request": "^2.88.2",
     "user-agents": "^1.0.559"
