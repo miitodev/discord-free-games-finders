@@ -52,7 +52,7 @@ async function SteamList() {
       return {TITLE, APP_ID, SUB_ID, PROMO_TYPE, APP_TYPE, START_DATE, END_DATE};
     }));
 
-  return {...items}
+  return items
 }
 
 if (require.main === module) {
