@@ -4,6 +4,8 @@ const cron = require("cron");
 const SteamList = require('./events/SteamList')
 const EpicList = require('./events/EpicList')
 const AsciiTable = require('ascii-table')
+const format = require('date-fns/format')
+
 const scheduled = new cron.CronJob('0 14 * * *')
 require('dotenv').config()
 
@@ -13,14 +15,14 @@ async function createTable() {
   const SteamTable = new AsciiTable();
   const EpicTable = new AsciiTable()
 
-  SteamTable.setHeading('Steam Games', 'Ends in')
-  EpicTable.setHeading('Epic Games Store Games', 'Ends in')
+  SteamTable.setHeading('Steam Games', 'Dates')
+  EpicTable.setHeading('Epic Games Store Games', 'Start', 'Ends')
 
   const Steam = await SteamList();
   const Epic = await EpicList();
 
-  Steam.forEach((e) => {
-    SteamTable.addRow(e.title, e.endin)
+  Steam.forEach((el) => {
+    SteamTable.addRow(`${el.APP_TYPE}: ${el.TITLE}`, `${format(el.START_DATE, 'MMM dd')} - ${format(el.END_DATE, 'MMM dd')}`)
   })
 
   Epic.forEach((e) => {
