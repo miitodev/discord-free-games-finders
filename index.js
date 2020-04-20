@@ -7,7 +7,7 @@ const format = require('date-fns/format');
 const SteamList = require('./events/SteamList');
 const EpicList = require('./events/EpicList');
 
-const scheduled = new cron.CronJob('0 14 * * *');
+const scheduled = new cron.CronJob('0 12 * * *');
 require('dotenv').config();
 
 const freeSteamGameChannel = process.env.CHANNEL_ID;
