@@ -43,7 +43,7 @@ client.on('ready', () => {
   scheduled.addCallback(() => {
     createTable().then((result) => {
       client.channels.fetch(freeSteamGameChannel).then((reponse) => {
-        reponse.send(result, { code: 'moon' });
+        reponse.send(result, { code: 'moon', split: true });
       });
     });
   });
@@ -56,7 +56,7 @@ client.on('message', async (message) => {
 
   if (message.content.toLowerCase() === '$fgame') {
     createTable().then((result) => {
-      message.channel.send(result, { code: 'elm' });
+      message.channel.send(result, { code: 'moon', split: true });
     });
   }
 });
